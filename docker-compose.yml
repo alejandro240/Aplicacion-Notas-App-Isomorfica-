@@ -1,0 +1,23 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app_notas_examenes
+    working_dir: /app
+    ports:
+      - "80:3001"
+    volumes:
+      - ./BdAppNotas.json:/app/BdAppNotas.json
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      VIRTUAL_HOST: app-notas.duckdns.org
+      LETSENCRYPT_HOST: app-notas.duckdns.org
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

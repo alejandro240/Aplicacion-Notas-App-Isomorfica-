@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Notas de Exámenes</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Gestión de Notas de Exámenes</h1>
+            <p class="subtitle">Aplicación Isomórfica con Node.js, Express y LowDB</p>
+        </header>
+
+        <div class="seccion-formulario">
+            <h2>➕ Agregar Estudiante</h2>
+            <form id="formulario-estudiante">
+                <div class="cuadricula-formulario">
+                    <input type="text" id="nombre" placeholder="Nombre" required>
+                    <input type="text" id="apellidos" placeholder="Apellidos" required>
+                    <input type="number" id="nota" placeholder="Nota (0-10)" min="0" max="10" step="0.1" required>
+                    <select id="asignatura" required>
+                        <option value="">Seleccionar Asignatura</option>
+                        <optgroup label="Matemáticas y Ciencias">
+                            <option value="Matemáticas">Matemáticas</option>
+                            <option value="Física y Química">Física y Química</option>
+                            <option value="Biología y Geología">Biología y Geología</option>
+                            <option value="Física">Física</option>
+                            <option value="Química">Química</option>
+                            <option value="Biología">Biología</option>
+                        </optgroup>
+                        <optgroup label="Lenguas">
+                            <option value="Lengua Castellana y Literatura">Lengua Castellana y Literatura</option>
+                            <option value="Inglés">Inglés</option>
+                            <option value="Francés">Francés</option>
+                            <option value="Alemán">Alemán</option>
+                            <option value="Catalán">Catalán</option>
+                            <option value="Valenciano">Valenciano</option>
+                            <option value="Gallego">Gallego</option>
+                            <option value="Euskera">Euskera</option>
+                        </optgroup>
+                        <optgroup label="Ciencias Sociales">
+                            <option value="Geografía e Historia">Geografía e Historia</option>
+                            <option value="Historia de España">Historia de España</option>
+                            <option value="Historia del Arte">Historia del Arte</option>
+                            <option value="Geografía">Geografía</option>
+                            <option value="Economía">Economía</option>
+                            <option value="Economía de la Empresa">Economía de la Empresa</option>
+                        </optgroup>
+                        <optgroup label="Filosofía y Humanidades">
+                            <option value="Filosofía">Filosofía</option>
+                            <option value="Latín">Latín</option>
+                            <option value="Griego">Griego</option>
+                            <option value="Historia de la Filosofía">Historia de la Filosofía</option>
+                        </optgroup>
+                        <optgroup label="Tecnología y Dibujo">
+                            <option value="Tecnología">Tecnología</option>
+                            <option value="Tecnología Industrial">Tecnología Industrial</option>
+                            <option value="Dibujo Técnico">Dibujo Técnico</option>
+                            <option value="Tecnologías de la Información">Tecnologías de la Información</option>
+                        </optgroup>
+                        <optgroup label="Artes">
+                            <option value="Educación Plástica y Visual">Educación Plástica y Visual</option>
+                            <option value="Música">Música</option>
+                            <option value="Dibujo Artístico">Dibujo Artístico</option>
+                        </optgroup>
+                        <optgroup label="Otras">
+                            <option value="Educación Física">Educación Física</option>
+                            <option value="Religión">Religión</option>
+                            <option value="Valores Éticos">Valores Éticos</option>
+                            <option value="Cultura Científica">Cultura Científica</option>
+                        </optgroup>
+                    </select>
+                    <button type="submit" class="boton-primario">Agregar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="seccion-estudiantes">
+            <h2>👥 Lista de Estudiantes</h2>
+            
+            <div class="filtros">
+                <button class="boton-filtro activo" data-filtro="todos">Todos</button>
+                <button class="boton-filtro" data-filtro="aprobados">Aprobados</button>
+                <button class="boton-filtro" data-filtro="suspendidos">Suspendidos</button>
+                <button class="boton-filtro" data-filtro="excelentes">Excelentes (≥9)</button>
+            </div>
+
+            <div id="contenedor-estudiantes">
+                <!-- La tabla se cargará dinámicamente -->
+            </div>
+        </div>
+
+        <div class="cuadricula-estadisticas" id="cuadricula-estadisticas">
+            <!-- Las estadísticas se cargarán dinámicamente -->
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
