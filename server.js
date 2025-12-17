@@ -3,6 +3,8 @@ import { join, dirname } from 'path';
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 import { fileURLToPath } from 'url';
+import { renderizarTablaEstudiantes, renderizarEstadisticas, calcularEstadisticas } from './renderizadores.js';
+import { readFileSync } from 'fs';
 
 const __nombreArchivo = fileURLToPath(import.meta.url);
 const __directorio = dirname(__nombreArchivo);
@@ -17,6 +19,7 @@ const baseDatos = new Low(adaptador, { estudiantes: [] });
 
 // Middleware
 aplicacion.use(express.json());
+// Servir archivos estáticos (CSS, JS del cliente)
 aplicacion.use(express.static(__directorio));
 
 // Función de inicialización de la base de datos
@@ -147,9 +150,32 @@ inicializarBaseDatos().then(() => {
         respuesta.status(204).send();
     });
 
-    // Servir el archivo index.html
-    aplicacion.get('/', (peticion, respuesta) => {
-        respuesta.sendFile(join(__directorio, 'index.html'));
+    // **RENDERIZADO DEL LADO DEL SERVIDOR (SSR)**
+    // La ruta principal ahora renderiza el HTML con datos iniciales
+    aplicacion.get('/', async (peticion, respuesta) => {
+        await baseDatos.read();
+        const estudiantes = baseDatos.data.estudiantes;
+        const estadisticas = calcularEstadisticas(estudiantes);
+        
+        // Leer el template HTML
+        const templateHTML = readFileSync(join(__directorio, 'index.html'), 'utf-8');
+        
+        // Renderizar el contenido inicial usando el módulo compartido
+        const htmlEstudiantes = renderizarTablaEstudiantes(estudiantes);
+        const htmlEstadisticas = renderizarEstadisticas(estadisticas);
+        
+        // Inyectar el contenido pre-renderizado en el HTML
+        const htmlFinal = templateHTML
+            .replace('<!-- CONTENEDOR_ESTUDIANTES -->', htmlEstudiantes)
+            .replace('<!-- CONTENEDOR_ESTADISTICAS -->', htmlEstadisticas)
+            .replace('<!-- DATOS_INICIALES -->', `
+                <script>
+                    // Datos iniciales para hidratación
+                    window.__INITIAL_DATA__ = ${JSON.stringify({ estudiantes, estadisticas })};
+                </script>
+            `);
+        
+        respuesta.send(htmlFinal);
     });
 
     // Iniciar el servidor

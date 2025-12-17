@@ -1,11 +1,21 @@
+// Importar módulo compartido para renderizado
+import { renderizarTablaEstudiantes, renderizarEstadisticas, calcularEstadisticas, obtenerClaseNota } from './renderizadores.js';
+
 let filtroActual = 'todos';
 let ordenActual = { campo: null, orden: 'asc' };
 let idEditando = null;
 
-// Cargar datos iniciales
+// **HIDRATACIÓN**: El HTML ya viene renderizado del servidor
+// Solo necesitamos agregar los event listeners y la interactividad
 window.onload = function() {
-    cargarEstadisticas();
-    cargarEstudiantes();
+    // El contenido ya está renderizado por el servidor (SSR)
+    // Solo hidratamos los eventos y funcionalidad interactiva
+    console.log('✅ Aplicación isomórfica hidratada - Contenido inicial renderizado por el servidor');
+    
+    // Si hay datos iniciales del servidor, los usamos
+    if (window.__INITIAL_DATA__) {
+        console.log('📦 Datos iniciales del servidor:', window.__INITIAL_DATA__);
+    }
 };
 
 // Escuchadores de eventos
@@ -21,45 +31,15 @@ document.querySelectorAll('.boton-filtro').forEach(function(boton) {
     });
 });
 
+// Ahora usa el módulo compartido para renderizar
 function cargarEstadisticas() {
     fetch('/api/estadisticas')
         .then(function(respuesta) {
             return respuesta.json();
         })
         .then(function(estadisticas) {
-            const htmlEstadisticas = `
-                <div class="tarjeta-estadistica">
-                    <div class="icono-estadistica">👥</div>
-                    <div class="valor-estadistica">${estadisticas.total}</div>
-                    <div class="etiqueta-estadistica">Total Estudiantes</div>
-                </div>
-                <div class="tarjeta-estadistica">
-                    <div class="icono-estadistica">📈</div>
-                    <div class="valor-estadistica">${estadisticas.promedio}</div>
-                    <div class="etiqueta-estadistica">Nota Promedio</div>
-                </div>
-                <div class="tarjeta-estadistica">
-                    <div class="icono-estadistica">✅</div>
-                    <div class="valor-estadistica">${estadisticas.aprobados}</div>
-                    <div class="etiqueta-estadistica">Aprobados (${estadisticas.porcentajeAprobados}%)</div>
-                </div>
-                <div class="tarjeta-estadistica">
-                    <div class="icono-estadistica">❌</div>
-                    <div class="valor-estadistica">${estadisticas.suspendidos}</div>
-                    <div class="etiqueta-estadistica">Suspendidos</div>
-                </div>
-                <div class="tarjeta-estadistica">
-                    <div class="icono-estadistica">🏆</div>
-                    <div class="valor-estadistica">${estadisticas.notaMaxima}</div>
-                    <div class="etiqueta-estadistica">Nota Máxima</div>
-                </div>
-                <div class="tarjeta-estadistica">
-                    <div class="icono-estadistica">📉</div>
-                    <div class="valor-estadistica">${estadisticas.notaMinima}</div>
-                    <div class="etiqueta-estadistica">Nota Mínima</div>
-                </div>
-            `;
-            
+            // Usar la función compartida del módulo renderizadores.js
+            const htmlEstadisticas = renderizarEstadisticas(estadisticas);
             document.getElementById('cuadricula-estadisticas').innerHTML = htmlEstadisticas;
         })
         .catch(function(error) {
@@ -90,51 +70,8 @@ function cargarEstudiantes() {
 
             const contenedor = document.getElementById('contenedor-estudiantes');
 
-            if (estudiantes.length === 0) {
-                contenedor.innerHTML = `
-                    <div class="estado-vacio">
-                        <div class="icono-estado-vacio">📚</div>
-                        <h3>No hay estudiantes todavía</h3>
-                        <p>Agrega el primer estudiante usando el formulario superior</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const htmlTabla = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th onclick="ordenarTabla('nombre')">Nombre ↕</th>
-                            <th onclick="ordenarTabla('apellidos')">Apellidos ↕</th>
-                            <th onclick="ordenarTabla('nota')">Nota ↕</th>
-                            <th>Asignatura</th>
-                            <th>Fecha</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${estudiantes.map(function(estudiante) {
-                            return `
-                                <tr id="estudiante-${estudiante.id}">
-                                    <td>${estudiante.nombre}</td>
-                                    <td>${estudiante.apellidos}</td>
-                                    <td><span class="insignia-nota ${obtenerClaseNota(estudiante.nota)}">${estudiante.nota.toFixed(1)}</span></td>
-                                    <td>${estudiante.asignatura}</td>
-                                    <td>${estudiante.fecha}</td>
-                                    <td>
-                                        <div class="acciones">
-                                            <button class="boton boton-editar" onclick="editarEstudiante(${estudiante.id})">Editar</button>
-                                            <button class="boton boton-eliminar" onclick="eliminarEstudiante(${estudiante.id})">Eliminar</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
-            `;
-
+            // Usar la función compartida del módulo renderizadores.js
+            const htmlTabla = renderizarTablaEstudiantes(estudiantes);
             contenedor.innerHTML = htmlTabla;
             cargarEstadisticas();
         })
@@ -143,18 +80,9 @@ function cargarEstudiantes() {
         });
 }
 
-function obtenerClaseNota(nota) {
-    if (nota >= 9) {
-        return 'nota-excelente';
-    }
-    if (nota >= 7) {
-        return 'nota-notable';
-    }
-    if (nota >= 5) {
-        return 'nota-aprobado';
-    }
-    return 'nota-suspendido';
-}
+// Ya no necesitamos esta función aquí, está en renderizadores.js (código compartido)
+// La mantenemos por compatibilidad con window.obtenerClaseNota si se necesita
+window.obtenerClaseNota = obtenerClaseNota;
 
 function manejarEnvio(evento) {
     evento.preventDefault();
@@ -251,3 +179,8 @@ function ordenarTabla(campo) {
     }
     cargarEstudiantes();
 }
+
+// Exponer funciones globales para que funcionen desde el HTML
+window.editarEstudiante = editarEstudiante;
+window.eliminarEstudiante = eliminarEstudiante;
+window.ordenarTabla = ordenarTabla;

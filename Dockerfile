@@ -6,11 +6,12 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
 
-# Copiar código fuente
+# Copiar código fuente (incluyendo módulo compartido)
 COPY server.js .
 COPY index.html .
 COPY estilos.css .
 COPY script.js .
+COPY renderizadores.js .
 
 # Variables de entorno
 ENV PORT=3001
