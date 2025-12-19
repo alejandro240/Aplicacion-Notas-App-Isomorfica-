@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
 
-# Copiar código fuente 
+# Copiar código fuente
 COPY server.js .
 COPY index.html .
 COPY estilos.css .
